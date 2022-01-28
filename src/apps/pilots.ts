@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
-import { firestoreDb } from "@/repositories";
+import { responseLocals } from "@/repositories";
+import { getPilots } from "@/models/pilots/resolvers";
 
 const app = express();
 
@@ -8,12 +9,12 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.use((req, res, next) => {
-  res.locals = { firestoreDb };
+  res.locals = responseLocals;
   next();
 });
 
 // build multiple CRUD interfaces:
-app.get("/", (req, res) => res.json({ success: true, route: "GET pilots/" }));
+app.get("/", getPilots);
 app.post("/", (req, res) => res.json({ success: true, route: "POST pilots/" }));
 app.get("/:id", (req, res) =>
   res.json({ success: true, route: "GET pilots/:id" })

@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { firestoreDb } from "@/repositories";
+import { responseLocals } from "@/repositories";
 import { getAircrafts } from "@/models/aircrafts/resolvers";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 
@@ -10,7 +10,7 @@ const app = express();
 app.use(cors({ origin: true }));
 
 app.use((req, res, next) => {
-  res.locals = { firestoreDb };
+  res.locals = responseLocals;
   next();
 });
 
