@@ -1,0 +1,13 @@
+{
+  "functions": {
+    "source": ".",
+    "predeploy": [
+      "yarn lint",
+      "yarn build"
+    ]
+  },
+  "firestore": {
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  }
+}
