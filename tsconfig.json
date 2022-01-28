@@ -5,9 +5,19 @@
     "noUnusedLocals": true,
     "outDir": "lib",
     "sourceMap": true,
+    "esModuleInterop": true,
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"]
+    },
+    "moduleResolution": "node",
+    "target": "es6",
+    "jsx": "preserve",
+    "lib": ["dom", "es2015", "es2017"],
     "strict": true,
-    "target": "es2017",
-    "esModuleInterop": true
+    "isolatedModules": true,
+    "skipLibCheck": true,
+    "removeComments": false
   },
   "compileOnSave": true,
   "include": ["src"],
