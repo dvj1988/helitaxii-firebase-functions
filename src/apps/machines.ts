@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { responseLocals } from "@/repositories";
-import { getAircrafts } from "@/models/aircrafts/resolvers";
+import { getMachines } from "@/models/machines/resolvers";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 
 const app = express();
@@ -15,17 +15,20 @@ app.use((req, res, next) => {
 });
 
 // build multiple CRUD interfaces:
-app.get("/", getAircrafts);
-app.post("/", (req: ExpressRequest, res: ExpressResponse) => {
-  res.json({ success: true, route: "POST pilots/" });
-});
-app.get("/:id", (req, res) =>
+app.get("/organisation/:organisationId", getMachines);
+app.post(
+  "/organisation/:organisationId",
+  (req: ExpressRequest, res: ExpressResponse) => {
+    res.json({ success: true, route: "POST pilots/" });
+  }
+);
+app.get("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "GET pilots/:id" })
 );
-app.patch("/:id", (req, res) =>
+app.patch("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "PATCH pilots/:id" })
 );
-app.delete("/:id", (req, res) =>
+app.delete("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "DELETE pilots/:id" })
 );
 

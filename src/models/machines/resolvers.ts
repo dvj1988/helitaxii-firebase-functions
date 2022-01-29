@@ -3,23 +3,24 @@ import {
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
+import { MachineCreateType } from "@/types/machine";
 import { OrganisationParamsType } from "@/types/organisation";
-import { PilotCreateType } from "@/types/pilot";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
-import { isCreatePilotPayloadValid } from "./validators";
+import { isCreateMachinePayloadValid } from "./validators";
 
-export const getPilots = async (
+export const getMachines = async (
   req: ExpressRequest<OrganisationParamsType>,
   res: ExpressResponse
 ) => {
-  const { pilotRepository } = res.locals;
-  const { params } = req;
-  const { organisationId } = params;
+  const { machineRepository } = res.locals;
+  const {
+    params: { organisationId },
+  } = req;
 
   try {
-    const pilots = await pilotRepository.list(organisationId);
-    return res.json(getSuccessResponse({ pilots, organisationId }));
+    const machines = await machineRepository.list(organisationId);
+    return res.json(getSuccessResponse({ machines }));
   } catch (err) {
     return res
       .status(SERVER_ERROR_STATUS_CODE)
@@ -27,26 +28,26 @@ export const getPilots = async (
   }
 };
 
-export const createPilot = async (
-  req: ExpressRequest<OrganisationParamsType, {}, PilotCreateType>,
+export const createMachine = async (
+  req: ExpressRequest<OrganisationParamsType, {}, MachineCreateType>,
   res: ExpressResponse
 ) => {
-  const { pilotRepository } = res.locals;
+  const { machineRepository } = res.locals;
 
   const { body, params } = req;
 
-  const newPilot = pick(body, ["name"]);
+  const newMachine = pick(body, ["name", "type"]);
   const { organisationId } = params;
 
-  if (!isCreatePilotPayloadValid(newPilot)) {
+  if (!isCreateMachinePayloadValid(newMachine)) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
   }
 
   try {
-    const pilot = await pilotRepository.create(newPilot, organisationId);
-    return res.json(getSuccessResponse({ pilot, organisationId }));
+    const machine = await machineRepository.create(newMachine, organisationId);
+    return res.json(getSuccessResponse({ machine, organisationId }));
   } catch (err) {
     return res
       .status(SERVER_ERROR_STATUS_CODE)

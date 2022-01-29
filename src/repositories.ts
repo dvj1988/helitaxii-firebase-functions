@@ -1,13 +1,16 @@
 import { initializeApp } from "firebase-admin";
-import { AircraftRepository } from "@/models/aircrafts/repository";
+import { MachineRepository } from "@/models/machines/repository";
 import { PilotRepository } from "@/models/pilots/repository";
+import { OrganisationRepository } from "@/models/organisations/repository";
 
 initializeApp();
 
-export const airportRepository = new AircraftRepository();
+export const machineRepository = new MachineRepository();
 export const pilotRepository = new PilotRepository();
+export const organisationRepository = new OrganisationRepository();
 
 export const responseLocals = {
-  airportRepository,
+  machineRepository,
   pilotRepository,
+  organisationRepository,
 };

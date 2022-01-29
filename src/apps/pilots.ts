@@ -1,7 +1,7 @@
 import express from "express";
 import cors from "cors";
 import { responseLocals } from "@/repositories";
-import { getPilots } from "@/models/pilots/resolvers";
+import { createPilot, getPilots } from "@/models/pilots/resolvers";
 
 const app = express();
 
@@ -14,15 +14,15 @@ app.use((req, res, next) => {
 });
 
 // build multiple CRUD interfaces:
-app.get("/", getPilots);
-app.post("/", (req, res) => res.json({ success: true, route: "POST pilots/" }));
-app.get("/:id", (req, res) =>
+app.get("/organisation/:organisationId", getPilots);
+app.post("/organisation/:organisationId", createPilot);
+app.get("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "GET pilots/:id" })
 );
-app.patch("/:id", (req, res) =>
+app.patch("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "PATCH pilots/:id" })
 );
-app.delete("/:id", (req, res) =>
+app.delete("/:id/organisation/:organisationId", (req, res) =>
   res.json({ success: true, route: "DELETE pilots/:id" })
 );
 

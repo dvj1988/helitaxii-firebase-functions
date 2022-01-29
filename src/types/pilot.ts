@@ -3,3 +3,7 @@ export type PilotFirebaseType = {
 };
 
 export type PilotType = { id: string } & PilotFirebaseType;
+
+export type PilotCreateType = {
+  name: string;
+};
