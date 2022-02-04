@@ -1,14 +1,11 @@
-export type MachineFirebaseType = {
-  name: string;
-  type: MachineTypeEnum;
-};
-
-export type MachineType = { id: string } & MachineFirebaseType;
-
 export type MachineCreateType = {
-  name: string;
+  callSign: string;
   type: MachineTypeEnum;
+  modelNo: string;
 };
+
+export type MachineFirebaseType = MachineCreateType;
+export type MachineType = { id: string } & MachineFirebaseType;
 
 export enum MachineTypeEnum {
   "HELICOPTER" = "HELICOPTER",

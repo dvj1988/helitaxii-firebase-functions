@@ -20,7 +20,7 @@ export const getMachines = async (
 
   try {
     const machines = await machineRepository.list(organisationId);
-    return res.json(getSuccessResponse({ machines }));
+    return res.json(getSuccessResponse({ machines, organisationId }));
   } catch (err) {
     return res
       .status(SERVER_ERROR_STATUS_CODE)
@@ -36,7 +36,7 @@ export const createMachine = async (
 
   const { body, params } = req;
 
-  const newMachine = pick(body, ["name", "type"]);
+  const newMachine = pick(body, ["callSign", "type", "modelNo"]);
   const { organisationId } = params;
 
   if (!isCreateMachinePayloadValid(newMachine)) {

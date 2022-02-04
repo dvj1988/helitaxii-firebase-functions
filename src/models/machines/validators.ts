@@ -2,7 +2,11 @@ import { MachineCreateType, MachineTypeEnum } from "@/types/machine";
 import isString from "lodash/isString";
 
 export const isCreateMachinePayloadValid = (newMachine: MachineCreateType) => {
-  if (!isString(newMachine.name)) {
+  if (!isString(newMachine.callSign)) {
+    return false;
+  }
+
+  if (!isString(newMachine.modelNo)) {
     return false;
   }
 
