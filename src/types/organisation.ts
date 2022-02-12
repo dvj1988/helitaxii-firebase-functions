@@ -1,7 +1,3 @@
-export type OrganisationParamsType = {
-  organisationId: string;
-};
-
 export type OrganisationType = {
   id: string;
   name: string;

@@ -1,20 +1,16 @@
 import express from "express";
 import cors from "cors";
-import { responseLocals } from "@/repositories";
 import {
   createOrganisaton,
   getOrganisations,
 } from "@/models/organisations/resolvers";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 
 const app = express();
 
 // Automatically allow cross-origin requests
 app.use(cors({ origin: true }));
-
-app.use((req, res, next) => {
-  res.locals = responseLocals;
-  next();
-});
+app.use(authMiddleware);
 
 // build multiple CRUD interfaces:
 app.get("/", getOrganisations);

@@ -17,7 +17,6 @@ export const getOrganisations = async (
     const organisations = await organisationRepository.list();
     return res.json(getSuccessResponse({ organisations }));
   } catch (err) {
-    console.log(err);
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));

@@ -3,7 +3,6 @@ import {
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
-import { OrganisationParamsType } from "@/types/organisation";
 import {
   PilotCreateType,
   PilotFdtlRequestBodyType,
@@ -17,13 +16,14 @@ import {
   isCreatePilotPayloadValid,
 } from "./validators";
 
-export const getPilots = async (
-  req: ExpressRequest<OrganisationParamsType>,
-  res: ExpressResponse
-) => {
-  const { pilotRepository } = res.locals;
-  const { params } = req;
-  const { organisationId } = params;
+export const getPilots = async (req: ExpressRequest, res: ExpressResponse) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  if (!organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
 
   try {
     const pilots = await pilotRepository.list(organisationId);
@@ -36,17 +36,16 @@ export const getPilots = async (
 };
 
 export const createPilot = async (
-  req: ExpressRequest<OrganisationParamsType, {}, PilotCreateType>,
+  req: ExpressRequest<{}, {}, PilotCreateType>,
   res: ExpressResponse
 ) => {
-  const { pilotRepository } = res.locals;
+  const { pilotRepository, organisationId } = res.locals;
 
-  const { body, params } = req;
+  const { body } = req;
 
   const newPilot = pick(body, ["name"]);
-  const { organisationId } = params;
 
-  if (!isCreatePilotPayloadValid(newPilot)) {
+  if (!isCreatePilotPayloadValid(newPilot) || !organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
@@ -63,22 +62,18 @@ export const createPilot = async (
 };
 
 export const createPilotFdtl = async (
-  req: ExpressRequest<
-    OrganisationParamsType & PilotParamsType,
-    {},
-    PilotFdtlRequestBodyType
-  >,
+  req: ExpressRequest<PilotParamsType, {}, PilotFdtlRequestBodyType>,
   res: ExpressResponse
 ) => {
-  const { pilotRepository } = res.locals;
+  const { pilotRepository, organisationId } = res.locals;
 
   const { body, params } = req;
 
   const fdtlPayload = pick(body, ["dateInMs", "duty"]);
 
-  const { organisationId, pilotId } = params;
+  const { pilotId } = params;
 
-  if (!isCreatePilotFdtlValid(fdtlPayload)) {
+  if (!isCreatePilotFdtlValid(fdtlPayload) || !organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));

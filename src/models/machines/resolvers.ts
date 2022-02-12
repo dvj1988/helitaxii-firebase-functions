@@ -4,19 +4,23 @@ import {
 } from "@/constants/response";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 import { MachineCreateType } from "@/types/machine";
-import { OrganisationParamsType } from "@/types/organisation";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
 import { isCreateMachinePayloadValid } from "./validators";
 
 export const getMachines = async (
-  req: ExpressRequest<OrganisationParamsType>,
+  req: ExpressRequest,
   res: ExpressResponse
 ) => {
-  const { machineRepository } = res.locals;
-  const {
-    params: { organisationId },
-  } = req;
+  const { machineRepository, organisationId } = res.locals;
+
+  console.log(organisationId);
+
+  if (!organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
 
   try {
     const machines = await machineRepository.list(organisationId);
@@ -29,17 +33,16 @@ export const getMachines = async (
 };
 
 export const createMachine = async (
-  req: ExpressRequest<OrganisationParamsType, {}, MachineCreateType>,
+  req: ExpressRequest<{}, {}, MachineCreateType>,
   res: ExpressResponse
 ) => {
-  const { machineRepository } = res.locals;
+  const { machineRepository, organisationId } = res.locals;
 
-  const { body, params } = req;
+  const { body } = req;
 
   const newMachine = pick(body, ["callSign", "type", "modelNo"]);
-  const { organisationId } = params;
 
-  if (!isCreateMachinePayloadValid(newMachine)) {
+  if (!isCreateMachinePayloadValid(newMachine) || !organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));

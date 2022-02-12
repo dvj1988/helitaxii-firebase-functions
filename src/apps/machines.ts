@@ -1,28 +1,24 @@
 import express from "express";
 import cors from "cors";
-import { responseLocals } from "@/repositories";
 import { createMachine, getMachines } from "@/models/machines/resolvers";
+import { authMiddleware } from "@/middlewares/authMiddleware";
 
 const app = express();
 
 // Automatically allow cross-origin requests
 app.use(cors({ origin: true }));
-
-app.use((req, res, next) => {
-  res.locals = responseLocals;
-  next();
-});
+app.use(authMiddleware);
 
 // build multiple CRUD interfaces:
-app.get("/organisation/:organisationId", getMachines);
-app.post("/organisation/:organisationId", createMachine);
-app.get("/:id/organisation/:organisationId", (req, res) =>
+app.get("/", getMachines);
+app.post("/", createMachine);
+app.get("/:id", (req, res) =>
   res.json({ success: true, route: "GET pilots/:id" })
 );
-app.patch("/:id/organisation/:organisationId", (req, res) =>
+app.patch("/:id", (req, res) =>
   res.json({ success: true, route: "PATCH pilots/:id" })
 );
-app.delete("/:id/organisation/:organisationId", (req, res) =>
+app.delete("/:id", (req, res) =>
   res.json({ success: true, route: "DELETE pilots/:id" })
 );
 
