@@ -4,10 +4,18 @@ export type MachineCreateType = {
   modelNo: string;
 };
 
-export type MachineFirebaseType = MachineCreateType;
+export type MachineFirebaseType = MachineCreateType & {
+  deletedAt: FirebaseFirestore.Timestamp | null;
+  createdAt: FirebaseFirestore.Timestamp;
+};
+
 export type MachineType = { id: string } & MachineFirebaseType;
 
 export enum MachineTypeEnum {
   "HELICOPTER" = "HELICOPTER",
   "AIRCRAFT" = "AIRCRAFT",
 }
+
+export type MachineParamsType = {
+  machineId: string;
+};

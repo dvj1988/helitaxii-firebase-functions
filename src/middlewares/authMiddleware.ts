@@ -1,9 +1,9 @@
-import { UNAUTHORIZED_STATUS_CODE } from "@/constants/response";
 import { responseLocals } from "@/repositories";
-import { UserRoleEnum } from "@/types/auth";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
-import { getErrorResponse } from "@/utils/response";
 import { NextFunction } from "express";
+import { UNAUTHORIZED_STATUS_CODE } from "@/constants/response";
+import { UserRoleEnum } from "@/types/auth";
+import { getErrorResponse } from "@/utils/response";
 import { auth } from "firebase-admin";
 
 export const authMiddleware = async (

@@ -3,7 +3,9 @@ import cors from "cors";
 import {
   createPilot,
   createPilotFdtl,
+  deletePilot,
   getPilots,
+  getPilot,
 } from "@/models/pilots/resolvers";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 
@@ -16,11 +18,9 @@ app.use(authMiddleware);
 // build multiple CRUD interfaces:
 app.get("/", getPilots);
 app.post("/", createPilot);
-app.post("/:pilotId", createPilotFdtl);
-
-app.delete("/:id", (req, res) =>
-  res.json({ success: true, route: "DELETE pilots/:id" })
-);
+app.get("/:pilotId", getPilot);
+app.delete("/:pilotId", deletePilot);
+app.post("/:pilotId/fdtl", createPilotFdtl);
 
 // Expose Express API as a single Cloud Function:
 export default app;

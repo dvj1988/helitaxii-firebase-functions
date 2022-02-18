@@ -29,7 +29,10 @@ const getErrorMessage = (statusCode: 404 | 500 | 400 | 401) => {
   return "";
 };
 
-export const getErrorResponse = (statusCode: 404 | 500 | 400 | 401) => ({
+export const getErrorResponse = (
+  statusCode: 404 | 500 | 400 | 401,
+  message?: string
+) => ({
   status: "ERROR",
-  message: getErrorMessage(statusCode),
+  message: message || getErrorMessage(statusCode),
 });

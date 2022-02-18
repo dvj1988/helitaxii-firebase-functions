@@ -10,16 +10,11 @@ export const pilotFdtlOnWriteTrigger: (
   const newData = change.after.data() as PilotFdtlFirebaseType;
   const previousData = change.before.data() as PilotFdtlFirebaseType;
 
-  console.log("newData", newData);
-  console.log("previousData", previousData);
-
   const operation = isUndefined(newData)
     ? "DELETE"
     : isUndefined(previousData)
     ? "CREATE"
     : "UPDATE";
-
-  console.log(operation);
 
   // No changes required if the duty object is unchanged
   if (operation === "UPDATE" && isEqual(previousData.duty, newData.duty)) {

@@ -1,20 +1,26 @@
 import {
   BAD_REQUEST_STATUS_CODE,
+  MSG_INVALID_PAGINATION_PARAMS,
+  NOT_FOUND_STATUS_CODE,
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
+import { PaginationQueryType } from "@/types/common";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
-import { MachineCreateType } from "@/types/machine";
+import { MachineCreateType, MachineParamsType } from "@/types/machine";
+import {
+  getParsedPaginationParams,
+  isPaginationObjectValid,
+} from "@/utils/pagination";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
 import { isCreateMachinePayloadValid } from "./validators";
 
 export const getMachines = async (
-  req: ExpressRequest,
+  req: ExpressRequest<{}, {}, {}, PaginationQueryType>,
   res: ExpressResponse
 ) => {
   const { machineRepository, organisationId } = res.locals;
-
-  console.log(organisationId);
+  const { pageNumber, pageSize } = getParsedPaginationParams(req.query);
 
   if (!organisationId) {
     return res
@@ -22,9 +28,35 @@ export const getMachines = async (
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
   }
 
+  if (!isPaginationObjectValid({ pageNumber, pageSize })) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(
+        getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_PAGINATION_PARAMS)
+      );
+  }
+
   try {
-    const machines = await machineRepository.list(organisationId);
-    return res.json(getSuccessResponse({ machines, organisationId }));
+    const machines = await machineRepository.list(organisationId, {
+      pageNumber,
+      pageSize,
+    });
+
+    const { totalCount } = await machineRepository.getTotalCount(
+      organisationId
+    );
+
+    return res.json(
+      getSuccessResponse({
+        machines,
+        organisationId,
+        pageInfo: {
+          pageNumber,
+          pageSize,
+          totalCount,
+        },
+      })
+    );
   } catch (err) {
     return res
       .status(SERVER_ERROR_STATUS_CODE)
@@ -55,5 +87,65 @@ export const createMachine = async (
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
+  }
+};
+
+export const getMachine = async (
+  req: ExpressRequest<MachineParamsType>,
+  res: ExpressResponse
+) => {
+  const { machineRepository, organisationId } = res.locals;
+
+  const { params } = req;
+
+  const { machineId } = params;
+
+  if (!machineId || !organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    const pilot = await machineRepository.getById(organisationId, machineId);
+    return res.json(getSuccessResponse({ pilot, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+};
+
+export const deleteMachine = async (
+  req: ExpressRequest<MachineParamsType>,
+  res: ExpressResponse
+) => {
+  const { machineRepository, organisationId } = res.locals;
+
+  const { params } = req;
+
+  const { machineId } = params;
+
+  if (!machineId || !organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    await machineRepository.getById(organisationId, machineId);
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+
+  try {
+    await machineRepository.deleteById(organisationId, machineId);
+    return res.json(getSuccessResponse({ machineId, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
   }
 };

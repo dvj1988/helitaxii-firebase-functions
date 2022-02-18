@@ -1,7 +1,11 @@
 import {
   BAD_REQUEST_STATUS_CODE,
+  MSG_INVALID_ORGANISATION_ID,
+  MSG_INVALID_PAGINATION_PARAMS,
+  NOT_FOUND_STATUS_CODE,
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
+import { PaginationQueryType } from "@/types/common";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 import {
   PilotCreateType,
@@ -9,6 +13,10 @@ import {
   PilotParamsType,
 } from "@/types/pilot";
 import { createFdtlFirestoreInput } from "@/utils/fdtl";
+import {
+  getParsedPaginationParams,
+  isPaginationObjectValid,
+} from "@/utils/pagination";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
 import {
@@ -16,18 +24,48 @@ import {
   isCreatePilotPayloadValid,
 } from "./validators";
 
-export const getPilots = async (req: ExpressRequest, res: ExpressResponse) => {
+export const getPilots = async (
+  req: ExpressRequest<{}, {}, {}, PaginationQueryType>,
+  res: ExpressResponse
+) => {
   const { pilotRepository, organisationId } = res.locals;
+  const { pageNumber, pageSize } = getParsedPaginationParams(req.query);
 
   if (!organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
-      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+      .json(
+        getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_ORGANISATION_ID)
+      );
+  }
+
+  if (!isPaginationObjectValid({ pageNumber, pageSize })) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(
+        getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_PAGINATION_PARAMS)
+      );
   }
 
   try {
-    const pilots = await pilotRepository.list(organisationId);
-    return res.json(getSuccessResponse({ pilots, organisationId }));
+    const pilots = await pilotRepository.list(organisationId, {
+      pageNumber,
+      pageSize,
+    });
+
+    const { totalCount } = await pilotRepository.getTotalCount(organisationId);
+
+    return res.json(
+      getSuccessResponse({
+        pilots,
+        organisationId,
+        pageInfo: {
+          pageNumber,
+          pageSize,
+          totalCount,
+        },
+      })
+    );
   } catch (err) {
     return res
       .status(SERVER_ERROR_STATUS_CODE)
@@ -58,6 +96,66 @@ export const createPilot = async (
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
+  }
+};
+
+export const getPilot = async (
+  req: ExpressRequest<PilotParamsType>,
+  res: ExpressResponse
+) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  const { params } = req;
+
+  const { pilotId } = params;
+
+  if (!pilotId || !organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    const pilot = await pilotRepository.getById(organisationId, pilotId);
+    return res.json(getSuccessResponse({ pilot, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+};
+
+export const deletePilot = async (
+  req: ExpressRequest<PilotParamsType>,
+  res: ExpressResponse
+) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  const { params } = req;
+
+  const { pilotId } = params;
+
+  if (!pilotId || !organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    await pilotRepository.getById(organisationId, pilotId);
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+
+  try {
+    await pilotRepository.deleteById(organisationId, pilotId);
+    return res.json(getSuccessResponse({ pilotId, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
   }
 };
 

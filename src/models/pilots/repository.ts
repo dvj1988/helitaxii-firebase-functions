@@ -1,13 +1,15 @@
 import { firestore } from "firebase-admin";
-import moment from "moment";
 
 import { PilotCreateType, PilotFdtlCreateType, PilotType } from "@/types/pilot";
 import {
+  AGGREGATES_COLLECTION_NAME,
+  DOC_NOT_FOUND,
   FDTL_COLLECTION_NAME,
   ORGANISATIONS_COLLECTION_NAME,
   PILOTS_COLLECTION_NAME,
 } from "@/constants/firestore";
 import { calculateFlightTimesFromDuties } from "@/utils/fdtl";
+import { CollectionStatsDocType, PaginationType } from "@/types/common";
 
 export class PilotRepository {
   db: firestore.Firestore;
@@ -16,25 +18,77 @@ export class PilotRepository {
     this.db = firestore();
   }
 
-  list(organisationId: string) {
-    const date = firestore.Timestamp.fromDate(new Date());
-    console.log(date);
-    console.log(
-      "moment(date)",
-      moment(date.toDate()).utcOffset("+05:30").format("DD/MM/YYYY HH:mm")
-    );
-
+  async getById(organisationId: string, pilotId: string) {
     return this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
       .doc(organisationId)
       .collection(PILOTS_COLLECTION_NAME)
+      .doc(pilotId)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          return {
+            id: doc.id,
+            ...doc.data(),
+          };
+        }
+
+        throw new Error(DOC_NOT_FOUND);
+      });
+  }
+
+  list(organisationId: string, { pageNumber, pageSize }: PaginationType) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(PILOTS_COLLECTION_NAME)
+      .orderBy("createdAt", "desc")
+      .where("deletedAt", "==", null)
+      .limit(pageSize)
+      .offset((pageNumber - 1) * pageSize)
       .get()
       .then((snapshot) =>
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as PilotType))
       );
   }
 
-  create(newPilot: PilotCreateType, organisationId: string) {
+  deleteById(organisationId: string, pilotId: string) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(PILOTS_COLLECTION_NAME)
+      .doc(pilotId)
+      .update({
+        deletedAt: firestore.Timestamp.now(),
+      });
+  }
+
+  getTotalCount(organisationId: string) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(AGGREGATES_COLLECTION_NAME)
+      .doc(PILOTS_COLLECTION_NAME)
+      .get()
+      .then((doc) => {
+        if (doc.exists) {
+          return doc.data() as CollectionStatsDocType;
+        }
+
+        return {
+          totalCount: 0,
+        };
+      });
+  }
+
+  create(pilotObj: PilotCreateType, organisationId: string) {
+    const createdAt = firestore.Timestamp.now();
+    const newPilot = {
+      ...pilotObj,
+      createdAt,
+      deletedAt: null,
+    };
+
     return this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
       .doc(organisationId)
@@ -43,8 +97,8 @@ export class PilotRepository {
       .then(
         (d) =>
           ({
-            id: d.id,
             ...newPilot,
+            id: d.id,
           } as PilotType)
       );
   }

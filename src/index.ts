@@ -3,6 +3,7 @@ import pilotsApp from "./apps/pilots";
 import machinesApp from "./apps/machines";
 import organisationsApp from "./apps/organisations";
 import { pilotFdtlOnWriteTrigger } from "./triggers/fdtl";
+import { collectionOnWriteTrigger } from "./triggers/common";
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -23,3 +24,7 @@ export const organisations = firebaseHttps(organisationsApp);
 export const onWritePilotFdtl = functions.firestore
   .document("organisations/{organisationId}/pilots/{pilotId}/fdtl/{fdtlId}")
   .onWrite(pilotFdtlOnWriteTrigger);
+
+export const onWriteCollection = functions.firestore
+  .document("organisations/{organisationId}/{collectionName}/{collectionId}")
+  .onWrite(collectionOnWriteTrigger);
