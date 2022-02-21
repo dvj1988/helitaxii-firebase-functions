@@ -6,7 +6,7 @@ import {
   DOC_NOT_FOUND,
   ORGANISATIONS_COLLECTION_NAME,
 } from "@/constants/firestore";
-import { CollectionStatsDocType, PaginationType } from "@/types/common";
+import { CollectionStatsDocType, PaginationTypeOrNull } from "@/types/common";
 
 export class MachineRepository {
   db: firestore.Firestore;
@@ -38,15 +38,18 @@ export class MachineRepository {
       });
   }
 
-  list(organisationId: string, { pageNumber, pageSize }: PaginationType) {
-    return this.db
+  list(organisationId: string, { pageNumber, pageSize }: PaginationTypeOrNull) {
+    const query = this.db
       .collection(this.organisationCollectionName)
       .doc(organisationId)
       .collection(this.collectionName)
       .orderBy("createdAt", "desc")
-      .where("deletedAt", "==", null)
-      .limit(pageSize)
-      .offset((pageNumber - 1) * pageSize)
+      .where("deletedAt", "==", null);
+
+    if (pageNumber && pageSize) {
+      query.limit(pageSize).offset((pageNumber - 1) * pageSize);
+    }
+    return query
       .get()
       .then((snapshot) =>
         snapshot.docs.map(

@@ -1,4 +1,8 @@
-import { PaginationQueryType, PaginationType } from "@/types/common";
+import {
+  PaginationQueryTypeOrNull,
+  PaginationType,
+  PaginationTypeOrNull,
+} from "@/types/common";
 import { isNumber } from "lodash";
 
 export const isPaginationObjectValid = (pagination: PaginationType) => {
@@ -14,10 +18,19 @@ export const isPaginationObjectValid = (pagination: PaginationType) => {
 };
 
 export const getParsedPaginationParams = (
-  pagination: PaginationQueryType
-): PaginationType => {
+  pagination: PaginationQueryTypeOrNull
+): PaginationTypeOrNull => {
+  const { pageNumber, pageSize } = pagination;
+
+  if (!pageNumber || !pageSize) {
+    return {
+      pageNumber: null,
+      pageSize: null,
+    };
+  }
+
   return {
-    pageSize: parseInt(pagination.pageSize, 10),
-    pageNumber: parseInt(pagination.pageNumber, 10),
+    pageSize: parseInt(pageSize, 10),
+    pageNumber: parseInt(pageNumber, 10),
   };
 };

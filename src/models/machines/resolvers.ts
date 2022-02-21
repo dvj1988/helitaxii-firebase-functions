@@ -1,16 +1,12 @@
 import {
   BAD_REQUEST_STATUS_CODE,
-  MSG_INVALID_PAGINATION_PARAMS,
   NOT_FOUND_STATUS_CODE,
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
 import { PaginationQueryType } from "@/types/common";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 import { MachineCreateType, MachineParamsType } from "@/types/machine";
-import {
-  getParsedPaginationParams,
-  isPaginationObjectValid,
-} from "@/utils/pagination";
+import { getParsedPaginationParams } from "@/utils/pagination";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
 import { isCreateMachinePayloadValid } from "./validators";
@@ -26,14 +22,6 @@ export const getMachines = async (
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
-  }
-
-  if (!isPaginationObjectValid({ pageNumber, pageSize })) {
-    return res
-      .status(BAD_REQUEST_STATUS_CODE)
-      .json(
-        getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_PAGINATION_PARAMS)
-      );
   }
 
   try {
@@ -58,6 +46,7 @@ export const getMachines = async (
       })
     );
   } catch (err) {
+    console.log(err);
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
@@ -107,8 +96,8 @@ export const getMachine = async (
   }
 
   try {
-    const pilot = await machineRepository.getById(organisationId, machineId);
-    return res.json(getSuccessResponse({ pilot, organisationId }));
+    const machine = await machineRepository.getById(organisationId, machineId);
+    return res.json(getSuccessResponse({ machine, organisationId }));
   } catch (err) {
     return res
       .status(NOT_FOUND_STATUS_CODE)

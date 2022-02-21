@@ -9,7 +9,7 @@ import {
   PILOTS_COLLECTION_NAME,
 } from "@/constants/firestore";
 import { calculateFlightTimesFromDuties } from "@/utils/fdtl";
-import { CollectionStatsDocType, PaginationType } from "@/types/common";
+import { CollectionStatsDocType, PaginationTypeOrNull } from "@/types/common";
 
 export class PilotRepository {
   db: firestore.Firestore;
@@ -37,15 +37,19 @@ export class PilotRepository {
       });
   }
 
-  list(organisationId: string, { pageNumber, pageSize }: PaginationType) {
-    return this.db
+  list(organisationId: string, { pageNumber, pageSize }: PaginationTypeOrNull) {
+    const query = this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
       .doc(organisationId)
       .collection(PILOTS_COLLECTION_NAME)
       .orderBy("createdAt", "desc")
-      .where("deletedAt", "==", null)
-      .limit(pageSize)
-      .offset((pageNumber - 1) * pageSize)
+      .where("deletedAt", "==", null);
+
+    if (pageNumber && pageSize) {
+      query.limit(pageSize).offset((pageNumber - 1) * pageSize);
+    }
+
+    return query
       .get()
       .then((snapshot) =>
         snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as PilotType))

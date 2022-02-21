@@ -1,11 +1,10 @@
 import {
   BAD_REQUEST_STATUS_CODE,
   MSG_INVALID_ORGANISATION_ID,
-  MSG_INVALID_PAGINATION_PARAMS,
   NOT_FOUND_STATUS_CODE,
   SERVER_ERROR_STATUS_CODE,
 } from "@/constants/response";
-import { PaginationQueryType } from "@/types/common";
+import { PaginationQueryTypeOrNull } from "@/types/common";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 import {
   PilotCreateType,
@@ -13,10 +12,7 @@ import {
   PilotParamsType,
 } from "@/types/pilot";
 import { createFdtlFirestoreInput } from "@/utils/fdtl";
-import {
-  getParsedPaginationParams,
-  isPaginationObjectValid,
-} from "@/utils/pagination";
+import { getParsedPaginationParams } from "@/utils/pagination";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
 import {
@@ -25,7 +21,7 @@ import {
 } from "./validators";
 
 export const getPilots = async (
-  req: ExpressRequest<{}, {}, {}, PaginationQueryType>,
+  req: ExpressRequest<{}, {}, {}, PaginationQueryTypeOrNull>,
   res: ExpressResponse
 ) => {
   const { pilotRepository, organisationId } = res.locals;
@@ -36,14 +32,6 @@ export const getPilots = async (
       .status(BAD_REQUEST_STATUS_CODE)
       .json(
         getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_ORGANISATION_ID)
-      );
-  }
-
-  if (!isPaginationObjectValid({ pageNumber, pageSize })) {
-    return res
-      .status(BAD_REQUEST_STATUS_CODE)
-      .json(
-        getErrorResponse(BAD_REQUEST_STATUS_CODE, MSG_INVALID_PAGINATION_PARAMS)
       );
   }
 
@@ -67,6 +55,7 @@ export const getPilots = async (
       })
     );
   } catch (err) {
+    console.log(err);
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
