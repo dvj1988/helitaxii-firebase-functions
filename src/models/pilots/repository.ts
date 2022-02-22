@@ -1,6 +1,11 @@
 import { firestore } from "firebase-admin";
 
-import { PilotCreateType, PilotFdtlCreateType, PilotType } from "@/types/pilot";
+import {
+  PilotCreateType,
+  PilotFdtlCreateType,
+  PilotFdtlType,
+  PilotType,
+} from "@/types/pilot";
 import {
   AGGREGATES_COLLECTION_NAME,
   DOC_NOT_FOUND,
@@ -122,8 +127,32 @@ export class PilotRepository {
       .then((doc) => doc.data() as PilotFdtlCreateType | undefined);
   }
 
+  listFdtl(
+    {
+      pilotId,
+      startDate,
+      endDate,
+    }: { pilotId: string; startDate: Date; endDate: Date },
+    organisationId: string
+  ) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(PILOTS_COLLECTION_NAME)
+      .doc(pilotId)
+      .collection(FDTL_COLLECTION_NAME)
+      .where("date", ">=", startDate)
+      .where("date", "<=", endDate)
+      .get()
+      .then((snapshot) => {
+        return snapshot.docs.map(
+          (d) => ({ ...d.data(), id: d.id } as PilotFdtlType)
+        );
+      });
+  }
+
   updateFdtl(
-    { id, pilotId, date, duty }: PilotFdtlCreateType,
+    { id, pilotId, date, duty, machineId }: PilotFdtlCreateType,
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
@@ -139,6 +168,7 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
+        machineId,
       })
       .then((d) => ({
         id,
@@ -146,11 +176,12 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
+        machineId,
       }));
   }
 
   addFdtl(
-    { id, pilotId, date, duty }: PilotFdtlCreateType,
+    { id, pilotId, date, duty, machineId }: PilotFdtlCreateType,
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
@@ -166,6 +197,7 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
+        machineId,
       })
       .then((d) => ({
         id,
@@ -173,6 +205,7 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
+        machineId,
       }));
   }
 }

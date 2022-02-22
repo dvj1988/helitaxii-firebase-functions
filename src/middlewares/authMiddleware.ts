@@ -33,8 +33,6 @@ export const authMiddleware = async (
       .json(getErrorResponse(UNAUTHORIZED_STATUS_CODE));
   }
 
-  console.log(allowedorganisationIds, organisationId);
-
   if (!allowedorganisationIds.includes(organisationId)) {
     return res
       .status(UNAUTHORIZED_STATUS_CODE)

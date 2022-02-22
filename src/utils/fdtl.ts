@@ -2,8 +2,13 @@ import {
   PilotFdtlCreateType,
   PilotFdtlRequestBodyType,
   FlightDutyType,
+  PilotFdtlListQueryType,
+  FdtlListQueryType,
+  PilotFdtlType,
 } from "@/types/pilot";
 import moment from "moment";
+import { differenceFirebaseDates } from "./time";
+import { firestore } from "firebase-admin";
 
 export const getFdtlDocumentId = (dateInMs: number, utcOffset: string) => {
   return moment(dateInMs).utcOffset(utcOffset).format("DD-MM-YYYY");
@@ -14,7 +19,7 @@ export const createFdtlFirestoreInput = (
   pilotId: string,
   utcOffset: string
 ): PilotFdtlCreateType => {
-  const { dateInMs, duty } = fdtlRequestBody;
+  const { dateInMs, duty, machineId } = fdtlRequestBody;
 
   const id = getFdtlDocumentId(dateInMs, utcOffset);
 
@@ -23,6 +28,7 @@ export const createFdtlFirestoreInput = (
     pilotId,
     date: new Date(dateInMs),
     duty,
+    machineId,
   };
 };
 
@@ -76,4 +82,134 @@ export const calculateFlightTimesFromDuties = (duties: FlightDutyType[]) => {
       days365: 0,
     },
   };
+};
+
+export const getParsedFdtlFilterQuery = (
+  query: PilotFdtlListQueryType
+): FdtlListQueryType => {
+  const { startDateInMs, endDateInMs } = query;
+
+  return {
+    startDateInMs: parseInt(startDateInMs, 10),
+    endDateInMs: parseInt(endDateInMs, 10),
+  };
+};
+
+export const getAllDatesFdtls = (
+  fdtls: PilotFdtlType[],
+  startDateInMs: number,
+  endDateInMs: number,
+  pilotId: string
+) => {
+  const allFdtls: PilotFdtlType[] = [];
+
+  for (
+    let i = startDateInMs;
+    i <= endDateInMs;
+    i = moment(i).add(1, "days").valueOf()
+  ) {
+    const documentId = getFdtlDocumentId(i, "+05:30");
+
+    const exisitingFdtl = fdtls.find(({ id }) => id === documentId) || {
+      id: documentId,
+      date: firestore.Timestamp.fromMillis(i),
+      duty: [],
+      machineId: "",
+      pilotId,
+      aggregate: {
+        flightDutyInMins: {
+          onDay: 0,
+          days28: 0,
+          days365: 0,
+          days7: 0,
+        },
+        flightTimeInMins: {
+          onDay: 0,
+          days28: 0,
+          days365: 0,
+          days7: 0,
+        },
+      },
+    };
+
+    const previousYearFdtls = fdtls.filter(
+      ({ date }) =>
+        differenceFirebaseDates(exisitingFdtl.date, date) < 365 &&
+        differenceFirebaseDates(exisitingFdtl.date, date) > 0
+    );
+
+    const newFdtl = previousYearFdtls.reduce(
+      (acc, curr) => {
+        const isCurrentMonth =
+          differenceFirebaseDates(exisitingFdtl.date, curr.date) < 28;
+
+        const isCurrentWeek =
+          differenceFirebaseDates(exisitingFdtl.date, curr.date) < 7;
+
+        console.log(
+          documentId,
+          exisitingFdtl.id,
+          isCurrentMonth,
+          isCurrentWeek
+        );
+
+        const accAggregateFlightDuty = acc.aggregate.flightDutyInMins;
+        const accAggregateFlightTime = acc.aggregate.flightTimeInMins;
+
+        const currentAggregateFlightDuty = curr.aggregate.flightDutyInMins;
+        const currentAggregateFlightTime = curr.aggregate.flightTimeInMins;
+
+        return {
+          ...acc,
+          aggregate: {
+            flightDutyInMins: {
+              ...accAggregateFlightDuty,
+              days28:
+                accAggregateFlightDuty.days28 +
+                (isCurrentMonth ? currentAggregateFlightDuty.onDay : 0),
+              days365:
+                accAggregateFlightDuty.days365 +
+                currentAggregateFlightDuty.onDay,
+              days7:
+                accAggregateFlightDuty.days28 +
+                (isCurrentWeek ? currentAggregateFlightDuty.onDay : 0),
+            },
+            flightTimeInMins: {
+              ...accAggregateFlightTime,
+              days28:
+                accAggregateFlightTime.days28 +
+                (isCurrentMonth ? currentAggregateFlightTime.onDay : 0),
+              days365:
+                accAggregateFlightTime.days365 +
+                currentAggregateFlightTime.onDay,
+              days7:
+                accAggregateFlightTime.days7 +
+                (isCurrentWeek ? currentAggregateFlightTime.onDay : 0),
+            },
+          },
+        };
+      },
+      {
+        ...exisitingFdtl,
+        aggregate: {
+          flightDutyInMins: {
+            ...exisitingFdtl.aggregate.flightDutyInMins,
+            days28: exisitingFdtl.aggregate.flightDutyInMins.onDay,
+            days365: exisitingFdtl.aggregate.flightDutyInMins.onDay,
+            days7: exisitingFdtl.aggregate.flightDutyInMins.onDay,
+          },
+          flightTimeInMins: {
+            ...exisitingFdtl.aggregate.flightTimeInMins,
+            days28: exisitingFdtl.aggregate.flightTimeInMins.onDay,
+            days365: exisitingFdtl.aggregate.flightTimeInMins.onDay,
+            days7: exisitingFdtl.aggregate.flightTimeInMins.onDay,
+          },
+        },
+      }
+    );
+
+    allFdtls.push(newFdtl);
+  }
+
+  return allFdtls;
 };

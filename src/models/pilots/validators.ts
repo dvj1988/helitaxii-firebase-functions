@@ -11,7 +11,11 @@ export const isCreatePilotPayloadValid = (newPilot: PilotCreateType) => {
 };
 
 export const isCreatePilotFdtlValid = (newFdtl: PilotFdtlRequestBodyType) => {
-  const { duty, dateInMs } = newFdtl;
+  const { duty, dateInMs, machineId } = newFdtl;
+
+  if (!machineId) {
+    return false;
+  }
 
   if (!isNumber(dateInMs)) {
     return false;

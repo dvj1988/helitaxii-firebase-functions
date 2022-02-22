@@ -8,13 +8,19 @@ import { PaginationQueryTypeOrNull } from "@/types/common";
 import { ExpressRequest, ExpressResponse } from "@/types/express";
 import {
   PilotCreateType,
+  PilotFdtlListQueryType,
   PilotFdtlRequestBodyType,
   PilotParamsType,
 } from "@/types/pilot";
-import { createFdtlFirestoreInput } from "@/utils/fdtl";
+import {
+  createFdtlFirestoreInput,
+  getAllDatesFdtls,
+  getParsedFdtlFilterQuery,
+} from "@/utils/fdtl";
 import { getParsedPaginationParams } from "@/utils/pagination";
 import { getErrorResponse, getSuccessResponse } from "@/utils/response";
 import { pick } from "lodash";
+import moment from "moment";
 import {
   isCreatePilotFdtlValid,
   isCreatePilotPayloadValid,
@@ -156,14 +162,19 @@ export const createPilotFdtl = async (
 
   const { body, params } = req;
 
-  const fdtlPayload = pick(body, ["dateInMs", "duty"]);
+  const fdtlPayload = pick(body, ["dateInMs", "duty", "machineId"]);
 
   const { pilotId } = params;
 
   if (!isCreatePilotFdtlValid(fdtlPayload) || !organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)
-      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+      .json(
+        getErrorResponse(
+          BAD_REQUEST_STATUS_CODE,
+          "Invalid Organisation or Payload"
+        )
+      );
   }
 
   const newFdtl = createFdtlFirestoreInput(fdtlPayload, pilotId, "+05:30");
@@ -187,6 +198,60 @@ export const createPilotFdtl = async (
   try {
     const pilot = await pilotRepository.addFdtl(newFdtl, organisationId);
     return res.json(getSuccessResponse({ pilot, organisationId }));
+  } catch (err) {
+    console.log(err);
+    return res
+      .status(SERVER_ERROR_STATUS_CODE)
+      .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
+  }
+};
+
+export const listPilotFdtl = async (
+  req: ExpressRequest<PilotParamsType, {}, {}, PilotFdtlListQueryType>,
+  res: ExpressResponse
+) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  const { params, query } = req;
+
+  const { pilotId } = params;
+
+  const { startDateInMs, endDateInMs } = getParsedFdtlFilterQuery(query);
+
+  const queryStartDateInMs = moment(startDateInMs)
+    .subtract(364, "days")
+    .valueOf();
+
+  const fdtlListObj = {
+    pilotId,
+    startDate: new Date(queryStartDateInMs),
+    endDate: new Date(endDateInMs),
+  };
+
+  if (!organisationId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    const pilotFdtls = await pilotRepository.listFdtl(
+      fdtlListObj,
+      organisationId
+    );
+
+    const allFdtls = getAllDatesFdtls(
+      pilotFdtls,
+      startDateInMs,
+      endDateInMs,
+      pilotId
+    );
+
+    const pilot = await pilotRepository.getById(organisationId, pilotId);
+
+    return res.json(
+      getSuccessResponse({ pilot, organisationId, fdtls: allFdtls })
+    );
   } catch (err) {
     console.log(err);
     return res

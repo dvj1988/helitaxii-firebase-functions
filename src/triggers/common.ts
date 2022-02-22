@@ -24,8 +24,6 @@ export const collectionOnWriteTrigger: (
 
   const operation = isDeletion ? "DELETE" : isCreation ? "CREATE" : "UPDATE";
 
-  console.log(collectionName, operation);
-
   const db = change.after.ref.firestore;
 
   if (operation === "UPDATE") {
@@ -43,8 +41,6 @@ export const collectionOnWriteTrigger: (
 
     if (statsDoc.exists) {
       const stats = statsDoc.data() as CollectionStatsDocType;
-
-      console.log(stats);
 
       const newTotalCount =
         operation === "CREATE"
