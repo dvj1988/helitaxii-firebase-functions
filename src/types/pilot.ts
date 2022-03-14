@@ -15,12 +15,12 @@ export type FlightDutyType = {
   endMinutesFromMidnight: number;
   flightDurationInMinutes: number;
   sequence: number;
+  machineId: string;
 };
 
 export type PilotFdtlRequestBodyType = {
   dateInMs: number;
   duty: FlightDutyType[];
-  machineId: string;
 };
 
 export type PilotFdtlListQueryType = {
@@ -33,14 +33,12 @@ export type PilotFdtlCreateType = {
   pilotId: string;
   date: Date;
   duty: FlightDutyType[];
-  machineId: string;
 };
 
 export type PilotFdtlFirebaseType = Omit<PilotFdtlCreateType, "date"> & {
   date: FirebaseFirestore.Timestamp;
   aggregate: FdtlAggregateType;
   duty: FlightDutyType[];
-  machineId: string;
 };
 
 export type FdtlAggregateType = {

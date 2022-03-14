@@ -19,7 +19,7 @@ export const createFdtlFirestoreInput = (
   pilotId: string,
   utcOffset: string
 ): PilotFdtlCreateType => {
-  const { dateInMs, duty, machineId } = fdtlRequestBody;
+  const { dateInMs, duty } = fdtlRequestBody;
 
   const id = getFdtlDocumentId(dateInMs, utcOffset);
 
@@ -28,7 +28,6 @@ export const createFdtlFirestoreInput = (
     pilotId,
     date: new Date(dateInMs),
     duty,
-    machineId,
   };
 };
 
@@ -114,7 +113,6 @@ export const getAllDatesFdtls = (
       id: documentId,
       date: firestore.Timestamp.fromMillis(i),
       duty: [],
-      machineId: "",
       pilotId,
       aggregate: {
         flightDutyInMins: {

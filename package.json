@@ -4,7 +4,7 @@
     "lint": "eslint --ext .js,.ts .",
     "build": "tsc && tsc-alias",
     "build:watch": "tsc -w & tsc-alias -w",
-    "emulate": "firebase emulators:start --only functions,firestore --export-on-exit=./emulator-seed --import=./emulator-seed",
+    "emulate": "firebase emulators:start --only functions --export-on-exit=./emulator-seed --import=./emulator-seed",
     "shell": "yarn build && firebase functions:shell",
     "start": "yarn shell",
     "deploy": "firebase deploy --only functions",

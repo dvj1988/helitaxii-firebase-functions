@@ -152,7 +152,7 @@ export class PilotRepository {
   }
 
   updateFdtl(
-    { id, pilotId, date, duty, machineId }: PilotFdtlCreateType,
+    { id, pilotId, date, duty }: PilotFdtlCreateType,
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
@@ -168,7 +168,6 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
-        machineId,
       })
       .then((d) => ({
         id,
@@ -176,12 +175,11 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
-        machineId,
       }));
   }
 
   addFdtl(
-    { id, pilotId, date, duty, machineId }: PilotFdtlCreateType,
+    { id, pilotId, date, duty }: PilotFdtlCreateType,
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
@@ -197,7 +195,6 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
-        machineId,
       })
       .then((d) => ({
         id,
@@ -205,7 +202,6 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
-        machineId,
       }));
   }
 }

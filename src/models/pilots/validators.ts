@@ -11,11 +11,7 @@ export const isCreatePilotPayloadValid = (newPilot: PilotCreateType) => {
 };
 
 export const isCreatePilotFdtlValid = (newFdtl: PilotFdtlRequestBodyType) => {
-  const { duty, dateInMs, machineId } = newFdtl;
-
-  if (!machineId) {
-    return false;
-  }
+  const { duty, dateInMs } = newFdtl;
 
   if (!isNumber(dateInMs)) {
     return false;
@@ -33,7 +29,12 @@ export const isCreatePilotFdtlValid = (newFdtl: PilotFdtlRequestBodyType) => {
       startMinutesFromMidnight,
       sequence,
       flightDurationInMinutes,
+      machineId,
     }) => {
+      if (!machineId) {
+        isValid = false;
+        return false;
+      }
       if (!isNumber(endMinutesFromMidnight)) {
         isValid = false;
         return false;

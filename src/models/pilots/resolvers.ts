@@ -162,7 +162,7 @@ export const createPilotFdtl = async (
 
   const { body, params } = req;
 
-  const fdtlPayload = pick(body, ["dateInMs", "duty", "machineId"]);
+  const fdtlPayload = pick(body, ["dateInMs", "duty"]);
 
   const { pilotId } = params;
 
