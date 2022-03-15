@@ -5,6 +5,7 @@ import {
   deleteMachine,
   getMachine,
   getMachines,
+  updateMachine,
 } from "@/models/machines/resolvers";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 
@@ -18,6 +19,7 @@ app.use(authMiddleware);
 app.get("/", getMachines);
 app.post("/", createMachine);
 app.get("/:id", getMachine);
+app.put("/:id", updateMachine);
 app.delete("/:id", deleteMachine);
 
 // Expose Express API as a single Cloud Function:

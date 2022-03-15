@@ -7,6 +7,7 @@ export type MachineCreateType = {
 export type MachineFirebaseType = MachineCreateType & {
   deletedAt: FirebaseFirestore.Timestamp | null;
   createdAt: FirebaseFirestore.Timestamp;
+  updatedAt: FirebaseFirestore.Timestamp;
 };
 
 export type MachineType = { id: string } & MachineFirebaseType;

@@ -105,6 +105,55 @@ export const getMachine = async (
   }
 };
 
+export const updateMachine = async (
+  req: ExpressRequest<MachineParamsType, {}, MachineCreateType>,
+  res: ExpressResponse
+) => {
+  const { machineRepository, organisationId } = res.locals;
+
+  const {
+    params: { machineId },
+    body,
+  } = req;
+
+  const newMachine = pick(body, ["callSign", "type", "modelNo"]);
+
+  if (
+    !isCreateMachinePayloadValid(newMachine) ||
+    !organisationId ||
+    !machineId
+  ) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  let machine;
+
+  try {
+    machine = await machineRepository.getById(organisationId, machineId);
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+
+  if (!machine) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+
+  try {
+    await machineRepository.updateById(organisationId, machineId, newMachine);
+    return res.json(getSuccessResponse({ machineId, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+};
+
 export const deleteMachine = async (
   req: ExpressRequest<MachineParamsType>,
   res: ExpressResponse

@@ -81,6 +81,7 @@ export class MachineRepository {
     const newMachine = {
       ...machineObj,
       createdAt,
+      updatedAt: createdAt,
       deletedAt: null,
     };
 
@@ -106,6 +107,23 @@ export class MachineRepository {
       .doc(machineId)
       .update({
         deletedAt: firestore.Timestamp.now(),
+        updatedAt: firestore.Timestamp.now(),
+      });
+  }
+
+  updateById(
+    organisationId: string,
+    machineId: string,
+    machineObj: MachineCreateType
+  ) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(MACHINES_COLLECTION_NAME)
+      .doc(machineId)
+      .update({
+        ...machineObj,
+        updatedAt: firestore.Timestamp.now(),
       });
   }
 }
