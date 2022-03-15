@@ -120,6 +120,43 @@ export const getPilot = async (
   }
 };
 
+export const updatePilot = async (
+  req: ExpressRequest<PilotParamsType, {}, PilotCreateType>,
+  res: ExpressResponse
+) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  const {
+    params: { pilotId },
+    body,
+  } = req;
+
+  const newPilot = pick(body, ["name"]);
+
+  if (!pilotId || !organisationId || !isCreatePilotPayloadValid(newPilot)) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    await pilotRepository.getById(organisationId, pilotId);
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+
+  try {
+    await pilotRepository.updateById(organisationId, pilotId, newPilot);
+    return res.json(getSuccessResponse({ pilotId, organisationId }));
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
+  }
+};
+
 export const deletePilot = async (
   req: ExpressRequest<PilotParamsType>,
   res: ExpressResponse

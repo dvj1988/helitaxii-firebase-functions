@@ -7,6 +7,7 @@ import {
   getPilots,
   getPilot,
   listPilotFdtl,
+  updatePilot,
 } from "@/models/pilots/resolvers";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 
@@ -20,6 +21,7 @@ app.use(authMiddleware);
 app.get("/", getPilots);
 app.post("/", createPilot);
 app.get("/:pilotId", getPilot);
+app.put("/:pilotId", updatePilot);
 app.delete("/:pilotId", deletePilot);
 app.post("/:pilotId/fdtl", createPilotFdtl);
 app.get("/:pilotId/fdtl", listPilotFdtl);

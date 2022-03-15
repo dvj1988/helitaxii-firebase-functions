@@ -72,6 +72,22 @@ export class PilotRepository {
       });
   }
 
+  updateById(
+    organisationId: string,
+    pilotId: string,
+    pilotObj: PilotCreateType
+  ) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(PILOTS_COLLECTION_NAME)
+      .doc(pilotId)
+      .update({
+        ...pilotObj,
+        updatedAt: firestore.Timestamp.now(),
+      });
+  }
+
   getTotalCount(organisationId: string) {
     return this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
@@ -95,6 +111,7 @@ export class PilotRepository {
     const newPilot = {
       ...pilotObj,
       createdAt,
+      updatedAt: createdAt,
       deletedAt: null,
     };
 

@@ -2,6 +2,7 @@ export type PilotFirebaseType = {
   name: string;
   deletedAt: FirebaseFirestore.Timestamp | null;
   createdAt: FirebaseFirestore.Timestamp;
+  updatedAt: FirebaseFirestore.Timestamp;
 };
 
 export type PilotType = { id: string } & PilotFirebaseType;
