@@ -12,3 +12,5 @@ node_modules/
 *.log
 
 *-serviceaccount.json
+
+.DS_Store
