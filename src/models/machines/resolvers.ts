@@ -123,6 +123,7 @@ export const updateMachine = async (
     !organisationId ||
     !machineId
   ) {
+    console.log("Here");
     return res
       .status(BAD_REQUEST_STATUS_CODE)
       .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));

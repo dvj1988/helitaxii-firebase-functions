@@ -9,6 +9,7 @@ import { ExpressRequest, ExpressResponse } from "@/types/express";
 import {
   PilotCreateType,
   PilotFdtlListQueryType,
+  PilotFdtlParamsType,
   PilotFdtlRequestBodyType,
   PilotParamsType,
 } from "@/types/pilot";
@@ -240,6 +241,37 @@ export const createPilotFdtl = async (
     return res
       .status(SERVER_ERROR_STATUS_CODE)
       .json(getErrorResponse(SERVER_ERROR_STATUS_CODE));
+  }
+};
+
+export const getPilotFdtl = async (
+  req: ExpressRequest<PilotFdtlParamsType>,
+  res: ExpressResponse
+) => {
+  const { pilotRepository, organisationId } = res.locals;
+
+  const { params } = req;
+
+  const { fdtlId, pilotId } = params;
+
+  if (!fdtlId || !organisationId || !pilotId) {
+    return res
+      .status(BAD_REQUEST_STATUS_CODE)
+      .json(getErrorResponse(BAD_REQUEST_STATUS_CODE));
+  }
+
+  try {
+    const fdtl = await pilotRepository.getFdtl(
+      { pilotId, id: fdtlId },
+      organisationId
+    );
+    return res.json(
+      getSuccessResponse({ fdtl: fdtl || null, organisationId, pilotId })
+    );
+  } catch (err) {
+    return res
+      .status(NOT_FOUND_STATUS_CODE)
+      .json(getErrorResponse(NOT_FOUND_STATUS_CODE));
   }
 };
 

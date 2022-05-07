@@ -40,6 +40,9 @@ export type PilotFdtlFirebaseType = Omit<PilotFdtlCreateType, "date"> & {
   date: FirebaseFirestore.Timestamp;
   aggregate: FdtlAggregateType;
   duty: FlightDutyType[];
+  deletedAt: FirebaseFirestore.Timestamp | null;
+  createdAt: FirebaseFirestore.Timestamp;
+  updatedAt: FirebaseFirestore.Timestamp;
 };
 
 export type FdtlAggregateType = {
@@ -59,6 +62,11 @@ export type FdtlAggregateType = {
 
 export type PilotParamsType = {
   pilotId: string;
+};
+
+export type PilotFdtlParamsType = {
+  pilotId: string;
+  fdtlId: string;
 };
 
 export type FdtlListQueryType = {

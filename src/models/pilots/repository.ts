@@ -141,7 +141,7 @@ export class PilotRepository {
       .collection(FDTL_COLLECTION_NAME)
       .doc(id)
       .get()
-      .then((doc) => doc.data() as PilotFdtlCreateType | undefined);
+      .then((doc) => doc.data() as PilotFdtlType | undefined);
   }
 
   listFdtl(
@@ -192,6 +192,7 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
+        updatedAt: firestore.Timestamp.now(),
       }));
   }
 
@@ -212,6 +213,9 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
+        createdAt: firestore.Timestamp.now(),
+        updatedAt: firestore.Timestamp.now(),
+        deletedAt: null,
       })
       .then((d) => ({
         id,
