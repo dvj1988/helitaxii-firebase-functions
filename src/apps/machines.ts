@@ -18,9 +18,9 @@ app.use(authMiddleware);
 // build multiple CRUD interfaces:
 app.get("/", getMachines);
 app.post("/", createMachine);
-app.get("/:id", getMachine);
-app.put("/:id", updateMachine);
-app.delete("/:id", deleteMachine);
+app.get("/:machineId", getMachine);
+app.put("/:machineId", updateMachine);
+app.delete("/:machineId", deleteMachine);
 
 // Expose Express API as a single Cloud Function:
 export default app;
