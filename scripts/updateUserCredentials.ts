@@ -4,7 +4,7 @@ initializeApp({
   credential: credential.cert("./dev-serviceaccount.json"),
 });
 
-const TECH_THUMBY_USER_ID = "rlPCs1SjZWXHg85jUFqn15xO3LC3";
+const TECH_THUMBY_USER_ID = "cpisvu8ojQhDojQSIID6kBjGYq72";
 
 // auth()
 //   .getUser(TECH_THUMBY_USER_ID)
@@ -13,7 +13,11 @@ const TECH_THUMBY_USER_ID = "rlPCs1SjZWXHg85jUFqn15xO3LC3";
 auth()
   .setCustomUserClaims(TECH_THUMBY_USER_ID, {
     organisationIds: ["sClVivZhh3WIzgTjZMQv"],
-    roles: ["DEVELOPER"],
-    admin: true,
+    roles: ["FDTL_VIEWER"],
+    admin: false,
   })
   .then((res) => console.log(res));
+
+// auth()
+//   .updateUser(TECH_THUMBY_USER_ID, { password: "12345678" })
+//   .then(console.log);

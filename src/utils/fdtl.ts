@@ -128,6 +128,9 @@ export const getAllDatesFdtls = (
           days7: 0,
         },
       },
+      updatedAt: null,
+      createdAt: null,
+      deletedAt: null,
     };
 
     const previousYearFdtls = fdtls.filter(
@@ -144,13 +147,6 @@ export const getAllDatesFdtls = (
         const isCurrentWeek =
           differenceFirebaseDates(exisitingFdtl.date, curr.date) < 7;
 
-        console.log(
-          documentId,
-          exisitingFdtl.id,
-          isCurrentMonth,
-          isCurrentWeek
-        );
-
         const accAggregateFlightDuty = acc.aggregate.flightDutyInMins;
         const accAggregateFlightTime = acc.aggregate.flightTimeInMins;
 
@@ -162,27 +158,27 @@ export const getAllDatesFdtls = (
           aggregate: {
             flightDutyInMins: {
               ...accAggregateFlightDuty,
+              days7:
+                accAggregateFlightDuty.days7 +
+                (isCurrentWeek ? currentAggregateFlightDuty.onDay : 0),
               days28:
                 accAggregateFlightDuty.days28 +
                 (isCurrentMonth ? currentAggregateFlightDuty.onDay : 0),
               days365:
                 accAggregateFlightDuty.days365 +
                 currentAggregateFlightDuty.onDay,
-              days7:
-                accAggregateFlightDuty.days28 +
-                (isCurrentWeek ? currentAggregateFlightDuty.onDay : 0),
             },
             flightTimeInMins: {
               ...accAggregateFlightTime,
+              days7:
+                accAggregateFlightTime.days7 +
+                (isCurrentWeek ? currentAggregateFlightTime.onDay : 0),
               days28:
                 accAggregateFlightTime.days28 +
                 (isCurrentMonth ? currentAggregateFlightTime.onDay : 0),
               days365:
                 accAggregateFlightTime.days365 +
                 currentAggregateFlightTime.onDay,
-              days7:
-                accAggregateFlightTime.days7 +
-                (isCurrentWeek ? currentAggregateFlightTime.onDay : 0),
             },
           },
         };

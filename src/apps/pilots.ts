@@ -11,6 +11,7 @@ import {
   getPilotFdtl,
 } from "@/models/pilots/resolvers";
 import { authMiddleware } from "@/middlewares/authMiddleware";
+import { assertRoleMiddleware } from "@/middlewares";
 
 const app = express();
 
@@ -20,11 +21,23 @@ app.use(authMiddleware);
 
 // build multiple CRUD interfaces:
 app.get("/", getPilots);
-app.post("/", createPilot);
+app.post("/", assertRoleMiddleware(["FDTL_ADMIN", "DEVELOPER"]), createPilot);
 app.get("/:pilotId", getPilot);
-app.put("/:pilotId", updatePilot);
-app.delete("/:pilotId", deletePilot);
-app.post("/:pilotId/fdtl", createPilotFdtl);
+app.put(
+  "/:pilotId",
+  assertRoleMiddleware(["FDTL_ADMIN", "DEVELOPER"]),
+  updatePilot
+);
+app.delete(
+  "/:pilotId",
+  assertRoleMiddleware(["FDTL_ADMIN", "DEVELOPER"]),
+  deletePilot
+);
+app.post(
+  "/:pilotId/fdtl",
+  assertRoleMiddleware(["FDTL_ADMIN", "DEVELOPER"]),
+  createPilotFdtl
+);
 app.get("/:pilotId/fdtl", listPilotFdtl);
 app.get("/:pilotId/fdtl/:fdtlId", getPilotFdtl);
 

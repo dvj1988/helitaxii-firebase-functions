@@ -41,8 +41,8 @@ export type PilotFdtlFirebaseType = Omit<PilotFdtlCreateType, "date"> & {
   aggregate: FdtlAggregateType;
   duty: FlightDutyType[];
   deletedAt: FirebaseFirestore.Timestamp | null;
-  createdAt: FirebaseFirestore.Timestamp;
-  updatedAt: FirebaseFirestore.Timestamp;
+  createdAt: FirebaseFirestore.Timestamp | null;
+  updatedAt: FirebaseFirestore.Timestamp | null;
 };
 
 export type FdtlAggregateType = {

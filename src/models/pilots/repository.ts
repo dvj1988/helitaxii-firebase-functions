@@ -173,6 +173,7 @@ export class PilotRepository {
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
+    const updatedAt = firestore.Timestamp.now();
 
     return this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
@@ -185,6 +186,7 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
+        updatedAt,
       })
       .then((d) => ({
         id,
@@ -192,7 +194,7 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
-        updatedAt: firestore.Timestamp.now(),
+        updatedAt,
       }));
   }
 
@@ -201,6 +203,7 @@ export class PilotRepository {
     organisationId: string
   ) {
     const aggregate = calculateFlightTimesFromDuties(duty);
+    const createdAt = firestore.Timestamp.now();
 
     return this.db
       .collection(ORGANISATIONS_COLLECTION_NAME)
@@ -213,8 +216,8 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
-        createdAt: firestore.Timestamp.now(),
-        updatedAt: firestore.Timestamp.now(),
+        createdAt,
+        updatedAt: createdAt,
         deletedAt: null,
       })
       .then((d) => ({
@@ -223,6 +226,9 @@ export class PilotRepository {
         date,
         duty,
         aggregate,
+        createdAt,
+        updatedAt: createdAt,
+        deletedAt: null,
       }));
   }
 }
