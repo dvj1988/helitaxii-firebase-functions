@@ -17,7 +17,8 @@
     "strict": true,
     "isolatedModules": true,
     "skipLibCheck": true,
-    "removeComments": false
+    "removeComments": false,
+    "resolveJsonModule": true
   },
   "compileOnSave": true,
   "include": ["src"],

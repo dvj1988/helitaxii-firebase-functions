@@ -1,23 +1,19 @@
 import { initializeApp, credential, auth } from "firebase-admin";
 
 initializeApp({
-  credential: credential.cert("./dev-serviceaccount.json"),
+  credential: credential.cert("./prod-serviceaccount.json"),
 });
 
-const TECH_THUMBY_USER_ID = "cpisvu8ojQhDojQSIID6kBjGYq72";
-
-// auth()
-//   .getUser(TECH_THUMBY_USER_ID)
-//   .then((res) => console.log(res));
+const TECH_THUMBY_USER_ID = "HYeWCvhViAW6t9h18pn7mVtZbBm1";
 
 auth()
-  .setCustomUserClaims(TECH_THUMBY_USER_ID, {
-    organisationIds: ["sClVivZhh3WIzgTjZMQv"],
-    roles: ["FDTL_VIEWER"],
-    admin: false,
-  })
+  .getUser(TECH_THUMBY_USER_ID)
   .then((res) => console.log(res));
 
 // auth()
-//   .updateUser(TECH_THUMBY_USER_ID, { password: "12345678" })
-//   .then(console.log);
+//   .setCustomUserClaims(TECH_THUMBY_USER_ID, {
+//     organisationIds: ["700ImxH3FSTahzHX5YNE"],
+//     roles: ["FDTL_ADMIN"],
+//     admin: false,
+//   })
+//   .then((res) => console.log(res));

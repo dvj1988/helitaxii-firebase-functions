@@ -1,10 +1,18 @@
-import { initializeApp } from "firebase-admin";
+import { initializeApp, credential } from "firebase-admin";
 import { MachineRepository } from "@/models/machines/repository";
 import { PilotRepository } from "@/models/pilots/repository";
 import { OrganisationRepository } from "@/models/organisations/repository";
 import { AuthRepository } from "@/models/auth/repository";
+import config from "../config.json";
 
-initializeApp();
+initializeApp({
+  credential: credential.cert({
+    projectId: config.projectId,
+    clientEmail: config.clientEmail,
+    privateKey: config.privateKey,
+  }),
+  projectId: config.projectId,
+});
 
 export const machineRepository = new MachineRepository();
 export const pilotRepository = new PilotRepository();
