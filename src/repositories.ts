@@ -3,7 +3,7 @@ import { MachineRepository } from "@/models/machines/repository";
 import { PilotRepository } from "@/models/pilots/repository";
 import { OrganisationRepository } from "@/models/organisations/repository";
 import { AuthRepository } from "@/models/auth/repository";
-import config from "../config.json";
+import config from "@/config/prod.json";
 
 initializeApp({
   credential: credential.cert({

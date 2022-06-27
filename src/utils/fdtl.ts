@@ -63,7 +63,7 @@ export const calculateFlightTimesFromDuties = (duties: FlightDutyType[]) => {
 
     // If the break time is greater than 3hrs then reduce 50% of break time from total flight duty time
     if (breakTime >= 180) {
-      aggregate.totalFlightDutyInMins - Math.ceil(breakTime / 2);
+      aggregate.totalFlightDutyInMins -= Math.ceil(breakTime / 2);
     }
   }
 
