@@ -9,6 +9,7 @@ import {
   listPilotFdtl,
   updatePilot,
   getPilotFdtl,
+  deletePilotFdtl,
 } from "@/models/pilots/resolvers";
 import { authMiddleware } from "@/middlewares/authMiddleware";
 import { assertRoleMiddleware } from "@/middlewares";
@@ -40,6 +41,7 @@ app.post(
 );
 app.get("/:pilotId/fdtl", listPilotFdtl);
 app.get("/:pilotId/fdtl/:fdtlId", getPilotFdtl);
+app.delete("/:pilotId/fdtl/:fdtlId", deletePilotFdtl);
 
 // Expose Express API as a single Cloud Function:
 export default app;

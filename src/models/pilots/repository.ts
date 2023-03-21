@@ -144,6 +144,20 @@ export class PilotRepository {
       .then((doc) => doc.data() as PilotFdtlType | undefined);
   }
 
+  deleteFdtlById(
+    { pilotId, id }: { pilotId: string; id: string },
+    organisationId: string
+  ) {
+    return this.db
+      .collection(ORGANISATIONS_COLLECTION_NAME)
+      .doc(organisationId)
+      .collection(PILOTS_COLLECTION_NAME)
+      .doc(pilotId)
+      .collection(FDTL_COLLECTION_NAME)
+      .doc(id)
+      .delete();
+  }
+
   listFdtl(
     {
       pilotId,
