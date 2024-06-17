@@ -1,22 +1,31 @@
-import * as functions from "firebase-functions";
+import express from "express";
+import cors from "cors";
+
+// Import the sub-apps
 import pilotsApp from "./apps/pilots";
 import machinesApp from "./apps/machines";
 import organisationsApp from "./apps/organisations";
-import { collectionOnWriteTrigger } from "./triggers/common";
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
+// Create the main Express app
+const app = express();
 
-const firebaseHttps = functions.region("asia-south1").runWith({
-  minInstances: 1,
-  memory: "256MB",
-}).https.onRequest;
+// Apply CORS middleware
+app.use(cors());
 
-// Functions
-export const pilots = firebaseHttps(pilotsApp);
-export const machines = firebaseHttps(machinesApp);
-export const organisations = firebaseHttps(organisationsApp);
+// Mount the sub-apps on specific paths
+app.use("/pilots", pilotsApp);
+app.use("/machines", machinesApp);
+app.use("/organisations", organisationsApp);
 
-export const onWriteCollection = functions.firestore
-  .document("organisations/{organisationId}/{collectionName}/{collectionId}")
-  .onWrite(collectionOnWriteTrigger);
+// Optionally, add a home route
+app.get("/", (req, res) => {
+  res.send("Welcome to the Combined Node.js Server!");
+});
+
+// Set the port
+const port = process.env.PORT || 3000;
+
+// Start the server
+app.listen(port, () => {
+  console.log(`Server running on http://localhost:${port}`);
+});

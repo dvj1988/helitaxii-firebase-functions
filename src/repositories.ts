@@ -1,17 +1,13 @@
-import { initializeApp, credential } from "firebase-admin";
+const admin = require("firebase-admin");
+
 import { MachineRepository } from "@/models/machines/repository";
 import { PilotRepository } from "@/models/pilots/repository";
 import { OrganisationRepository } from "@/models/organisations/repository";
 import { AuthRepository } from "@/models/auth/repository";
 import config from "@/config/prod.json";
 
-initializeApp({
-  credential: credential.cert({
-    projectId: config.projectId,
-    clientEmail: config.clientEmail,
-    privateKey: config.privateKey,
-  }),
-  projectId: config.projectId,
+admin.initializeApp({
+  credential: admin.credential.cert(config),
 });
 
 export const machineRepository = new MachineRepository();
