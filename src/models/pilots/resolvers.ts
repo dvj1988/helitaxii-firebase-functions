@@ -204,6 +204,8 @@ export const createPilotFdtl = async (
 
   const { pilotId } = params;
 
+  console.log(body);
+
   if (!isCreatePilotFdtlValid(fdtlPayload) || !organisationId) {
     return res
       .status(BAD_REQUEST_STATUS_CODE)

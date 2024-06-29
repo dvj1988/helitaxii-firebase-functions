@@ -46,24 +46,35 @@ export const calculateFlightTimesFromDuties = (duties: FlightDutyType[]) => {
   } else {
     // Sort the duties based on the sequence
     newDuties.sort((a, b) => a.sequence - b.sequence);
-    const [firstDuty, secondDuty] = newDuties;
+    const [firstDuty, secondDuty, thirdDuty] = newDuties;
+
+    const lastDuty = thirdDuty || secondDuty;
 
     aggregate.totalFlightDurationMins =
-      firstDuty.flightDurationInMinutes + secondDuty.flightDurationInMinutes;
+      firstDuty.flightDurationInMinutes +
+      secondDuty.flightDurationInMinutes +
+      (thirdDuty?.flightDurationInMinutes || 0);
 
     // Calculate the total flight duty time
     aggregate.totalFlightDutyInMins =
-      secondDuty.endMinutesFromMidnight -
-      firstDuty.startMinutesFromMidnight +
-      75;
+      lastDuty.endMinutesFromMidnight - firstDuty.startMinutesFromMidnight + 75;
 
     // Calculate the break time between the duties
-    const breakTime =
+    const firstBreakTime =
       secondDuty.startMinutesFromMidnight - firstDuty.endMinutesFromMidnight;
 
     // If the break time is greater than 3hrs then reduce 50% of break time from total flight duty time
-    if (breakTime >= 180) {
-      aggregate.totalFlightDutyInMins -= Math.ceil(breakTime / 2);
+    if (firstBreakTime >= 180) {
+      aggregate.totalFlightDutyInMins -= Math.ceil(firstBreakTime / 2);
+    }
+
+    // Calculate the break time between the duties
+    const secondBreakTime =
+      thirdDuty?.startMinutesFromMidnight - secondDuty.endMinutesFromMidnight;
+
+    // If the break time is greater than 3hrs then reduce 50% of break time from total flight duty time
+    if (secondBreakTime >= 180) {
+      aggregate.totalFlightDutyInMins -= Math.ceil(secondBreakTime / 2);
     }
   }
 

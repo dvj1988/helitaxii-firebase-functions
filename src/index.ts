@@ -5,6 +5,7 @@ import cors from "cors";
 import pilotsApp from "./apps/pilots";
 import machinesApp from "./apps/machines";
 import organisationsApp from "./apps/organisations";
+import config from "@/config/prod.json";
 
 // Create the main Express app
 const app = express();
@@ -19,11 +20,11 @@ app.use("/organisations", organisationsApp);
 
 // Optionally, add a home route
 app.get("/", (req, res) => {
-  res.send("Welcome to the Combined Node.js Server!");
+  res.send(`Welcome to the Combined Node.js Server! ::${config.projectId}`);
 });
 
 // Set the port
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5000;
 
 // Start the server
 app.listen(port, () => {
