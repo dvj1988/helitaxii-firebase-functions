@@ -16,3 +16,5 @@ node_modules/
 .DS_Store
 src/config/*.json
 lib/
+output.json
+migrate/export*.json
