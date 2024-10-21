@@ -5,10 +5,11 @@ import {
   PilotFdtlListQueryType,
   FdtlListQueryType,
   PilotFdtlType,
-} from "@/types/pilot";
+} from "../types/pilot";
 import moment from "moment";
 import { differenceFirebaseDates } from "./time";
 import { firestore } from "firebase-admin";
+import fdtlDateThresholdStore from "./fdtlThresholdStore";
 
 export const getFdtlDocumentId = (dateInMs: number, utcOffset: string) => {
   return moment(dateInMs).utcOffset(utcOffset).format("DD-MM-YYYY");
@@ -31,18 +32,24 @@ export const createFdtlFirestoreInput = (
   };
 };
 
-export const calculateFlightTimesFromDuties = (duties: FlightDutyType[]) => {
+export const calculateFlightTimesFromDuties = ({
+  duties,
+  date,
+}: {
+  duties: FlightDutyType[];
+  date: Date;
+}) => {
+  const fdtlAdditionalTime = fdtlDateThresholdStore.getValueForDate(date);
+  // const fdtlAdditionalTime = 75;
   const newDuties = [...duties];
   const aggregate = { totalFlightDurationMins: 0, totalFlightDutyInMins: 0 };
 
   if (duties.length === 1) {
     aggregate.totalFlightDurationMins = duties[0].flightDurationInMinutes;
-    // Flight duty time starts 45mins before start and ends 30 mins after end.
-    // Hence add 75 mins in total
     aggregate.totalFlightDutyInMins =
       duties[0].endMinutesFromMidnight -
       duties[0].startMinutesFromMidnight +
-      75;
+      fdtlAdditionalTime;
   } else {
     // Sort the duties based on the sequence
     newDuties.sort((a, b) => a.sequence - b.sequence);
@@ -57,7 +64,9 @@ export const calculateFlightTimesFromDuties = (duties: FlightDutyType[]) => {
 
     // Calculate the total flight duty time
     aggregate.totalFlightDutyInMins =
-      lastDuty.endMinutesFromMidnight - firstDuty.startMinutesFromMidnight + 75;
+      lastDuty.endMinutesFromMidnight -
+      firstDuty.startMinutesFromMidnight +
+      fdtlAdditionalTime;
 
     // Calculate the break time between the duties
     const firstBreakTime =

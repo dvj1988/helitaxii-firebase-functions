@@ -6,6 +6,7 @@ import pilotsApp from "./apps/pilots";
 import machinesApp from "./apps/machines";
 import organisationsApp from "./apps/organisations";
 import config from "@/config/prod.json";
+import fdtlThresholdStore from "@/utils/fdtlThresholdStore";
 
 // Create the main Express app
 const app = express();
@@ -17,6 +18,18 @@ app.use(cors());
 app.use("/pilots", pilotsApp);
 app.use("/machines", machinesApp);
 app.use("/organisations", organisationsApp);
+
+app.get("/fdtl-additional-time", (req, res) => {
+  const currentDate = new Date();
+
+  res.json([
+    ...fdtlThresholdStore.getThresholds(),
+    {
+      date: currentDate.toISOString(),
+      value: fdtlThresholdStore.getValueForDate(currentDate),
+    },
+  ]);
+});
 
 // Optionally, add a home route
 app.get("/", (req, res) => {

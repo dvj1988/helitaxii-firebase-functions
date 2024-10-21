@@ -15,6 +15,7 @@ import {
 } from "@/constants/firestore";
 import { calculateFlightTimesFromDuties } from "@/utils/fdtl";
 import { CollectionStatsDocType, PaginationTypeOrNull } from "@/types/common";
+import fdtlThresholdStore from "@/utils/fdtlThresholdStore";
 
 export class PilotRepository {
   db: firestore.Firestore;
@@ -186,7 +187,11 @@ export class PilotRepository {
     { id, pilotId, date, duty }: PilotFdtlCreateType,
     organisationId: string
   ) {
-    const aggregate = calculateFlightTimesFromDuties(duty);
+    const aggregate = calculateFlightTimesFromDuties({
+      duties: duty,
+      date,
+    });
+    const fdtlAdditionalTime = fdtlThresholdStore.getValueForDate(date);
     const updatedAt = firestore.Timestamp.now();
 
     return this.db
@@ -201,6 +206,7 @@ export class PilotRepository {
         duty,
         aggregate,
         updatedAt,
+        fdtlAdditionalTime,
       })
       .then((d) => ({
         id,
@@ -216,7 +222,11 @@ export class PilotRepository {
     { id, pilotId, date, duty }: PilotFdtlCreateType,
     organisationId: string
   ) {
-    const aggregate = calculateFlightTimesFromDuties(duty);
+    const aggregate = calculateFlightTimesFromDuties({
+      duties: duty,
+      date,
+    });
+    const fdtlAdditionalTime = fdtlThresholdStore.getValueForDate(date);
     const createdAt = firestore.Timestamp.now();
 
     return this.db
@@ -230,6 +240,7 @@ export class PilotRepository {
         date: firestore.Timestamp.fromDate(date),
         duty,
         aggregate,
+        fdtlAdditionalTime,
         createdAt,
         updatedAt: createdAt,
         deletedAt: null,

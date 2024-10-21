@@ -3,7 +3,7 @@ const fs = require("fs");
 
 // Initialize Firebase Admin SDK
 admin.initializeApp({
-  credential: admin.credential.cert("./src/config/prod.json"),
+  credential: admin.credential.cert("./src/config.prod.json"),
 });
 
 const db = admin.firestore();
